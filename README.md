@@ -1,5 +1,50 @@
 # tidydata
 Tidy Data Programming Assignment
+# Description of R Script
+
+## 1) Load the data labels
+MyLabels <- read.table("C:\\Users\\rcorak\\Documents\\MyRStuff\\UCI HAR Dataset\\features.txt")
+## 2) Load the Training Data using the Data Labels as the column labels
+MyTrainingData <- read.table("C:\\Users\\rcorak\\Documents\\MyRStuff\\UCI HAR Dataset\\train\\X_train.txt", col.names=MyLabels[,c("V2")])
+## 3) Read in the activity indices for the training data
+MyTrainingDataActivyList <- read.table("C:\\Users\\rcorak\\Documents\\MyRStuff\\UCI HAR Dataset\\train\\y_train.txt", col.names="Activity")
+## 4) Read in the subject list for the training data
+MyTrainingDataSubjectList <- read.table("C:\\Users\\rcorak\\Documents\\MyRStuff\\UCI HAR Dataset\\train\\subject_train.txt", col.names="Subject")
+
+## 5) Load the Test Data using the Data Labels as the column labels (names each column using the measure name)
+MyTestData <- read.table("C:\\Users\\rcorak\\Documents\\MyRStuff\\UCI HAR Dataset\\test\\X_test.txt", col.names=MyLabels[,c("V2")])
+## 6) Read in the activity indices for the test data
+MyTestDataActivyList <- read.table("C:\\Users\\rcorak\\Documents\\MyRStuff\\UCI HAR Dataset\\test\\y_test.txt", col.names="Activity")
+## 7) Read in the subject list for the test data
+MyTestDataSubjectList <- read.table("C:\\Users\\rcorak\\Documents\\MyRStuff\\UCI HAR Dataset\\test\\subject_test.txt", col.names="Subject")
+
+## 8) Append the two datasets together for the data, activity and subject
+AllData <- rbind(MyTrainingData, MyTestData)
+AllActivityList <- rbind(MyTrainingDataActivyList, MyTestDataActivyList)
+AllSubjects <- rbind(MyTrainingDataSubjectList, MyTestDataSubjectList)
+
+## 9) Get the column name indices that calculate just the mean or std deviation
+columns <- grep(".mean()|std()", MyLabels$V2)
+
+## 10) create a new data table that contains only the columns that are mean or standard deviation
+LessData <- AllData[,columns]
+
+## 11) Combine the columns from the aactivity, subject and data tables into a single data table
+LessDataWithActivity <- cbind(AllActivityList, AllSubjects, LessData)
+
+## 12) Update the Activity column with the actual activity name instead of the activity code
+LessDataWithActivity$Activity <- recode(LessDataWithActivity$Activity, "1 = 'WALKING'; 2 = 'WALKING_UPSTAIRS'; 3 = 'WALKING_DOWNSTAIRS'; 4 = 'SITTING'; 5 = 'STANDING'; 6 = 'LAYING'")
+
+## 13) create a new tidy set that does an average for each collection of activities by subject id
+## first create a list of the grouping columns
+groupColumns = c("Activity","Subject")
+
+## 14) Calculate the average for each activity/subject combination for all the columns in the table
+averages = ddply(LessDataWithActivity, groupColumns, function(x) colMeans(x[3:ncol(LessDataWithActivity)]))
+
+## 15) Write the table into a data file
+write.table(averages, file = "tidydata.csv", sep = ",", row.name=FALSE)
+
 ## Tidy Data Field Definition 
 |Field                                   |Description                                     |Type    |
 |----------------------------------------|------------------------------------------------|--------|
@@ -84,3 +129,4 @@ Tidy Data Programming Assignment
 | fBodyBodyGyroJerkMag.mean..            | Body Gyro Jerk Mag Mean                        | float  |
 | fBodyBodyGyroJerkMag.std..             | Body Gyro Jerk Mag Std Deviation               | float  |
 | fBodyBodyGyroJerkMag.meanFreq..        | Body Gyro Jerk Mag Mean Frequency              | float  |
+
