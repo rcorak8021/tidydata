@@ -1,7 +1,7 @@
 # tidydata
 Tidy Data Programming Assignment
 ## Tidy Data Field Definition 
-| Field | Description | Type |
+|Field|Description|Type|
 | Activity | Activity Subject is Performing| String |
 | Subject | ID of Subject| String |
 | tBodyAcc.mean...X | Body Accelerator Mean - X Axis| float |
